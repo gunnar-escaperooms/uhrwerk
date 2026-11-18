@@ -1,0 +1,13 @@
+"AppBuild"
+{
+	"AppID"       "DEINE_APP_ID"
+	"Desc"        "Uhrwerk Build"
+	"BuildOutput" "../release/steam-output/"
+	"ContentRoot" "../release/"
+	"SetLive"     ""
+	"Depots"
+	{
+		"DEINE_DEPOT_ID_WINDOWS" "depot_windows.vdf"
+		"DEINE_DEPOT_ID_LINUX"   "depot_linux.vdf"
+	}
+}

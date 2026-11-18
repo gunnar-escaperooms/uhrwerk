@@ -1,0 +1,71 @@
+{
+  "name": "uhrwerk",
+  "productName": "Uhrwerk",
+  "version": "0.1.0",
+  "description": "Uhrwerk: ein 3D-Koop-Escape für zwei Spieler. Silvester 1899, Rathausturm von Lindenau.",
+  "main": "electron/main.js",
+  "private": true,
+  "scripts": {
+    "postinstall": "node scripts/vendor.js",
+    "start": "electron .",
+    "relay": "node server/relay.js",
+    "test": "node test/logik.test.js && node test/e2e.js",
+    "dist": "electron-builder --win --linux",
+    "dist:mac": "electron-builder --mac"
+  },
+  "dependencies": {
+    "steamworks.js": "0.4.0",
+    "three": "0.160.0",
+    "ws": "8.18.0"
+  },
+  "devDependencies": {
+    "electron": "33.2.1",
+    "playwright": "1.63.0"
+  },
+  "build": {
+    "appId": "de.gunnar-escaperooms.uhrwerk",
+    "productName": "Uhrwerk",
+    "files": [
+      "electron/**",
+      "src/**",
+      "package.json",
+      "node_modules/steamworks.js/**"
+    ],
+    "asarUnpack": [
+      "node_modules/steamworks.js/**"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "dir",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "dir",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dir",
+          "arch": [
+            "universal"
+          ]
+        }
+      ]
+    }
+  }
+}
