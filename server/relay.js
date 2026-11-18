@@ -4,7 +4,8 @@
 //   node server/relay.js            Port 8787
 //   PORT=9000 node server/relay.js
 const http = require("http"), fs = require("fs"), path = require("path");
-const { WebSocketServer } = require("ws");
+let ws; try { ws = require("ws"); } catch { ws = require("./ws"); } // im ZIP liegt ws direkt daneben
+const { WebSocketServer } = ws;
 
 const PORT = +process.env.PORT || 8787;
 const WURZEL = path.join(__dirname, "..", "src");

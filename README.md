@@ -50,3 +50,5 @@ docs/STEAM.md        Checkliste bis zur Veröffentlichung
 ```
 
 **Spoiler:** Die Lösung steht in `test/logik.test.js`.
+
+

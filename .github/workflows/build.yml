@@ -1,0 +1,77 @@
+name: Testen und bauen
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm test
+
+  bauen:
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            ziel: --win
+            ordner: win-unpacked
+            name: Uhrwerk-windows
+          - os: ubuntu-latest
+            ziel: --linux
+            ordner: linux-unpacked
+            name: Uhrwerk-linux
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npx electron-builder ${{ matrix.ziel }} --dir --publish never
+      - name: Relay-Server beilegen
+        shell: bash
+        run: |
+          mkdir -p "release/${{ matrix.ordner }}/relay"
+          cp server/relay.js "release/${{ matrix.ordner }}/relay/"
+          cp -r node_modules/ws "release/${{ matrix.ordner }}/relay/ws"
+          cp docs/SPIELEN.md "release/${{ matrix.ordner }}/LIESMICH.md"
+      - name: ZIP erstellen (Windows)
+        if: runner.os == 'Windows'
+        run: Compress-Archive -Path "release/${{ matrix.ordner }}/*" -DestinationPath "${{ matrix.name }}.zip"
+      - name: ZIP erstellen (Linux)
+        if: runner.os == 'Linux'
+        run: cd "release/${{ matrix.ordner }}" && zip -qr "../../${{ matrix.name }}.zip" .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}
+          path: ${{ matrix.name }}.zip
+          retention-days: 30
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: bauen
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: "*.zip"
+          generate_release_notes: true
